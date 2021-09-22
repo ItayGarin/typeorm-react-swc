@@ -1,10 +1,9 @@
 import "reflect-metadata";
 
-import React, { useState, useEffect } from "react";
-
+import React, { useEffect, useState } from "react";
+import { createConnection, EntityManager } from "typeorm/browser";
 import { SqljsConnectionOptions } from "typeorm/driver/sqljs/SqljsConnectionOptions";
 import Person from "./Person";
-import { createConnection, EntityManager } from "typeorm/browser";
 
 // @ts-ignore
 window.SQL = require("sql.js/dist/sql-wasm");
@@ -12,14 +11,12 @@ window.SQL = require("sql.js/dist/sql-wasm");
 export default function App() {
   const [em, setEm] = useState<null | EntityManager>(null);
   const [people, setPeople] = useState<Person[]>([]);
-  
-  // @ts-ignore
+
   useEffect(() => {
     (async () => {
       const connOpts: SqljsConnectionOptions = {
         type: "sqljs",
         entities: [Person],
-        // logging: true,
         synchronize: true,
       };
 
@@ -32,8 +29,8 @@ export default function App() {
 
   async function insert() {
     if (!em) {
-      console.warn("em not initialized yet")
-      return
+      console.warn("em not initialized yet");
+      return;
     }
 
     const person = new Person();
@@ -46,18 +43,18 @@ export default function App() {
       .catch((err) => {
         console.error(err);
       });
-  };
+  }
 
-  async function display() {
+  function display() {
     if (!em) {
-      console.warn("em not initialized yet")
-      return
+      console.warn("em not initialized yet");
+      return;
     }
 
-    const dbPeople = await em.find(Person)
-    if (dbPeople)
-      setPeople(dbPeople)
-  };
+    em.find(Person).then((dbPeople) => {
+      setPeople(dbPeople);
+    });
+  }
 
   return (
     <div>
